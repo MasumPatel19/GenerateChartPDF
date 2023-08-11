@@ -23,13 +23,11 @@ import com.pdfgenerate.Repository.FarmsDataRepository;
 @Service
 public class FarmsDataService {
 
-	
-
 	@Autowired
 	private FarmsDataRepository farmsDataRepository;
 
 	public ByteArrayInputStream createPdf() {
-		
+
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
 		Document document = new Document();
@@ -41,15 +39,20 @@ public class FarmsDataService {
 
 			List<FarmsData> dataList = farmsDataRepository.findAll();
 
+			List<String> findByTableName = farmsDataRepository.findByTableName("farms_data");
+			findByTableName.remove("id");
+			findByTableName.remove("farms");
+			System.out.println("column name : " + findByTableName);
 
-			// Create a simple chart using JFreeChart
-			JFreeChart chart = createChart(dataList);
+			for (String nutrient : findByTableName) {
+				JFreeChart chart = createChart(dataList, nutrient);
 
-			// Convert the chart to an image (PNG) and insert into the PDF
-			byte[] chartImageBytes = createChartImageBytes(chart);
-			Image chartImage = Image.getInstance(chartImageBytes);
-			chartImage.setAlignment(Element.ALIGN_CENTER);
-			document.add(chartImage);
+				// Convert the chart to an image(PNG) and insert into the PDF
+				byte[] chartImageBytes = createChartImageBytes(chart);
+				Image chartImage = Image.getInstance(chartImageBytes);
+				chartImage.setAlignment(Element.ALIGN_CENTER);
+				document.add(chartImage);
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -60,20 +63,30 @@ public class FarmsDataService {
 		return new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
 	}
 
-	private JFreeChart createChart(List<FarmsData> dataList) {
+	private JFreeChart createChart(List<FarmsData> dataList, String nutrient) {
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-//		dataset.addValue(10, "Series 1", "Category 1");
-//		dataset.addValue(20, "Series 2", "Category 2");
-//		dataset.addValue(30, "Series 3", "Category 3");
 
-		
-        for (FarmsData item : dataList) {
-            dataset.addValue(item.getZinc(),"Zinc",item.getFarms());
-        }
-		
-		
-		JFreeChart chart = ChartFactory.createBarChart("Sample Chart", "Farms", "Nutrients Value", dataset,
-				PlotOrientation.VERTICAL, false, false, false);
+		// data for the specific nutrient
+		for (FarmsData item : dataList) {
+			String farmName = item.getFarms();
+			int nutrientValue = 0;
+
+			if(nutrient.equals("Zinc")) {
+				nutrientValue = item.getZinc();
+			}
+			else if (nutrient.equals("Magnesium")) {
+				nutrientValue = item.getMagnesium();
+			}
+			else
+			{
+				nutrientValue = item.getCalcium();
+			}
+
+			dataset.addValue(nutrientValue, nutrient ,farmName);
+		}
+
+		JFreeChart chart = ChartFactory.createBarChart(nutrient + " Values by Farms", "Farms", nutrient + " Value",
+				dataset, PlotOrientation.VERTICAL, false, false, false);
 
 		return chart;
 	}
@@ -84,6 +97,4 @@ public class FarmsDataService {
 		return chartOutputStream.toByteArray();
 	}
 
-	
-	
 }

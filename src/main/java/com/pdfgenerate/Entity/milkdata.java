@@ -1,6 +1,5 @@
 package com.pdfgenerate.Entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -12,7 +11,6 @@ public class milkdata {
 	@Id
 	private int id;
 
-//	@Column(name="milkitem")
 	private String milkitem;
 	private String dairyprod;
 	private String geo;
@@ -34,7 +32,6 @@ public class milkdata {
 
 	public milkdata() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public int getId() {

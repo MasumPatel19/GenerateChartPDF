@@ -21,20 +21,17 @@ public class PdfController {
 	@Autowired
 //	private PdfService pdfService;
 	private FarmsDataService farmsDataService;
-	
+
 	@GetMapping("/generatepdf")
-	public ResponseEntity<InputStreamResource> createPdf()
-	{
+	public ResponseEntity<InputStreamResource> createPdf() {
 //		ByteArrayInputStream createPdf = pdfService.createPdf();
 		ByteArrayInputStream createPdf = farmsDataService.createPdf();
-		
+
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.add("ContentData", "inline;file=testpdf.pdf");
-		return ResponseEntity.ok().headers(httpHeaders).contentType(MediaType.APPLICATION_PDF).body(new InputStreamResource(createPdf));
-		
-		
-		
-		
+		return ResponseEntity.ok().headers(httpHeaders).contentType(MediaType.APPLICATION_PDF)
+				.body(new InputStreamResource(createPdf));
+
 	}
-	
+
 }
